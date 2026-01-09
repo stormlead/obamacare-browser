@@ -299,7 +299,7 @@ router.get('/plan/:id', async (req, res, next) => {
     const baseId = plan.standard_component_id;
 
     const benefits = await dbQuery(`
-      SELECT * FROM benefits WHERE plan_id = ? AND is_covered = 1 ORDER BY benefit_name
+      SELECT * FROM benefits WHERE plan_id = ? AND is_covered = '1' ORDER BY benefit_name
     `, [baseId]);
 
     // Age sorting differs between SQLite and PostgreSQL
