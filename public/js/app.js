@@ -6,7 +6,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const locationInfo = document.getElementById('location-info');
   const ageInput = document.getElementById('age');
   const incomeInput = document.getElementById('income');
-  const householdSelect = document.getElementById('household-size');
+  const householdHidden = document.getElementById('household-size');
+  const householdDisplay = document.getElementById('household-display');
+  const householdLabel = document.getElementById('household-label');
+  const householdMinus = document.getElementById('household-minus');
+  const householdPlus = document.getElementById('household-plus');
 
   // Steps
   const stepZip = document.getElementById('step-zip');
@@ -31,6 +35,33 @@ document.addEventListener('DOMContentLoaded', function() {
       if (s) s.classList.remove('active');
     });
     if (step) step.classList.add('active');
+  }
+
+  // Household stepper control
+  function updateHouseholdDisplay(value) {
+    if (householdDisplay) householdDisplay.textContent = value;
+    if (householdLabel) householdLabel.textContent = value === 1 ? 'person' : 'people';
+    if (householdHidden) householdHidden.value = value;
+    if (householdMinus) householdMinus.disabled = value <= 1;
+    if (householdPlus) householdPlus.disabled = value >= 8;
+  }
+
+  if (householdMinus && householdPlus && householdHidden) {
+    updateHouseholdDisplay(1); // Initialize
+
+    householdMinus.addEventListener('click', function() {
+      let value = parseInt(householdHidden.value, 10);
+      if (value > 1) {
+        updateHouseholdDisplay(value - 1);
+      }
+    });
+
+    householdPlus.addEventListener('click', function() {
+      let value = parseInt(householdHidden.value, 10);
+      if (value < 8) {
+        updateHouseholdDisplay(value + 1);
+      }
+    });
   }
 
   // Format income input with commas
@@ -64,6 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
       if (zip.length === 5 && zip !== lastLookedUpZip) {
         debounceTimer = setTimeout(() => lookupZipCode(zip), 300);
       }
+    });
+
+    // Handle Enter key - trigger lookup immediately if valid zip
+    zipcodeInput.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const zip = this.value.replace(/\D/g, '');
+      if (zip.length !== 5 || zip === lastLookedUpZip || isLookingUp) return;
+      clearTimeout(debounceTimer);
+      lookupZipCode(zip);
     });
   }
 
@@ -120,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Brief delay then show household step
         setTimeout(() => {
           showStep(stepHousehold);
-          if (householdSelect) householdSelect.focus();
+          if (incomeInput) incomeInput.focus();
           isLookingUp = false;
         }, 500);
       } else {
@@ -150,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (this.value) {
         currentCounty = this.value;
         showStep(stepHousehold);
-        if (householdSelect) householdSelect.focus();
+        if (incomeInput) incomeInput.focus();
       }
     });
   }
