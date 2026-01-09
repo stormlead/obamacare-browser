@@ -214,14 +214,16 @@ router.get('/plan/:id', async (req, res, next) => {
     let ratesSql;
     if (isPostgres()) {
       ratesSql = `
-        SELECT DISTINCT age, individual_rate FROM rates
+        SELECT DISTINCT age, individual_rate,
+          CASE
+            WHEN age = '0-14' THEN 0
+            WHEN age = '14 and under' THEN 0
+            WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER)
+            ELSE 100
+          END as sort_order
+        FROM rates
         WHERE plan_id = ? AND (tobacco = 'No Preference' OR tobacco IS NULL)
-        ORDER BY CASE
-          WHEN age = '0-14' THEN 0
-          WHEN age = '14 and under' THEN 0
-          WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER)
-          ELSE 100
-        END
+        ORDER BY sort_order
       `;
     } else {
       ratesSql = `

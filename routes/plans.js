@@ -306,13 +306,15 @@ router.get('/plan/:id', async (req, res, next) => {
     let ratesSql;
     if (isPostgres()) {
       ratesSql = `
-        SELECT DISTINCT age, individual_rate, individual_tobacco_rate FROM rates WHERE plan_id = ?
-        ORDER BY CASE
-          WHEN age = '0-14' THEN 0
-          WHEN age = '14 and under' THEN 0
-          WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER)
-          ELSE 100
-        END
+        SELECT DISTINCT age, individual_rate, individual_tobacco_rate,
+          CASE
+            WHEN age = '0-14' THEN 0
+            WHEN age = '14 and under' THEN 0
+            WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER)
+            ELSE 100
+          END as sort_order
+        FROM rates WHERE plan_id = ?
+        ORDER BY sort_order
       `;
     } else {
       ratesSql = `
@@ -405,8 +407,10 @@ router.get('/compare', async (req, res, next) => {
 
       let ratesSql;
       if (isPostgres()) {
-        ratesSql = `SELECT DISTINCT age, individual_rate FROM rates WHERE plan_id = ?
-          ORDER BY CASE WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER) ELSE 0 END`;
+        ratesSql = `SELECT DISTINCT age, individual_rate,
+          CASE WHEN age ~ '^[0-9]+$' THEN CAST(age AS INTEGER) ELSE 0 END as sort_order
+          FROM rates WHERE plan_id = ?
+          ORDER BY sort_order`;
       } else {
         ratesSql = `SELECT DISTINCT age, individual_rate FROM rates WHERE plan_id = ?
           ORDER BY CASE WHEN age GLOB '[0-9]*' THEN CAST(age AS INTEGER) ELSE 0 END`;
