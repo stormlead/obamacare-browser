@@ -1,0 +1,101 @@
+<%- include('layout', { body: `
+<div class="hero-section">
+  <div class="hero-background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="gradient-orb orb-4"></div>
+    <div class="hero-noise"></div>
+  </div>
+
+  <div class="hero-content">
+    <h1>Find Health Insurance Plans</h1>
+    <p>See if you qualify for $0 or low-cost health coverage</p>
+  </div>
+</div>
+
+<form action="/plans" method="get" class="search-form wizard-form" id="search-form">
+  <div class="wizard-steps">
+    <div class="wizard-step active" id="step-zip">
+      <label for="zipcode">What's your zip code?</label>
+      <input type="text" name="zipcode" id="zipcode" placeholder="12345" pattern="[0-9]{5}" maxlength="5" required autofocus>
+      <div id="location-info" class="location-info"></div>
+    </div>
+
+    <div class="wizard-step" id="step-county">
+      <label for="county">Which county do you live in?</label>
+      <select name="county" id="county">
+        <option value="">Select a county</option>
+      </select>
+      <div class="wizard-nav">
+        <button type="button" class="btn btn-secondary btn-nav" id="back-to-zip">&larr; Back</button>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="step-household">
+      <label>Tell us about your household</label>
+      <div class="household-inputs">
+        <div class="household-field">
+          <label for="household-size" class="field-label">How many people in your household?</label>
+          <select name="household" id="household-size">
+            <option value="1" selected>Just me</option>
+            <option value="2">2 people</option>
+            <option value="3">3 people</option>
+            <option value="4">4 people</option>
+            <option value="5">5 people</option>
+            <option value="6">6 people</option>
+            <option value="7">7 people</option>
+            <option value="8">8+ people</option>
+          </select>
+        </div>
+        <div class="household-field">
+          <label for="income" class="field-label">Estimated yearly household income</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">$</span>
+            <input type="text" name="income" id="income" placeholder="50,000" inputmode="numeric">
+          </div>
+          <small class="field-hint">Before taxes. Include wages, self-employment, Social Security, etc.</small>
+        </div>
+      </div>
+      <div class="wizard-nav">
+        <button type="button" class="btn btn-secondary btn-nav" id="back-to-county">&larr; Back</button>
+        <button type="button" class="btn btn-primary btn-nav" id="next-to-age">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <div class="wizard-step" id="step-age">
+      <label for="age">How old are you?</label>
+      <input type="number" name="age" id="age" value="30" min="0" max="64" required>
+      <small class="field-hint">Enter your age, or the age of the primary applicant</small>
+      <div class="wizard-nav">
+        <button type="button" class="btn btn-secondary btn-nav" id="back-btn">&larr; Back</button>
+        <button type="submit" class="btn btn-primary btn-nav" id="submit-btn">See My Plans &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="hidden" name="state" id="state-hidden">
+</form>
+
+<div class="info-section" style="margin-top: 40px;">
+  <h2>How It Works</h2>
+  <div class="steps-grid">
+    <div class="step-item">
+      <div class="step-number">1</div>
+      <h3>Enter Your Info</h3>
+      <p>Tell us your zip code, household size, and income to see your options.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-number">2</div>
+      <h3>See Your Savings</h3>
+      <p>We'll estimate how much help you can get paying for coverage.</p>
+    </div>
+    <div class="step-item">
+      <div class="step-number">3</div>
+      <h3>Compare Plans</h3>
+      <p>Browse all available plans and find the right fit for your needs.</p>
+    </div>
+  </div>
+</div>
+
+`}) %>

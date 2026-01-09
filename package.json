@@ -1,0 +1,16 @@
+{
+  "name": "obamacare-browser",
+  "version": "1.0.0",
+  "description": "Browse and compare ACA Marketplace plans using CMS PUF data",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "import": "node db/import.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "csv-parse": "^5.5.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0"
+  }
+}

@@ -1,0 +1,174 @@
+<%- include('layout', { body: `
+<div class="results-header">
+  <h2>Plans in ${filters.county}, ${filters.state}</h2>
+  <span class="results-count">${plans.length} plans found</span>
+</div>
+
+<form action="/plans" method="get" id="filters-form">
+  <input type="hidden" name="state" value="${filters.state}">
+  <input type="hidden" name="county" value="${filters.county}">
+
+  <div class="your-info-bar">
+    <div class="info-bar-group">
+      <label for="age">Age</label>
+      <select name="age" id="age" onchange="this.form.submit()">
+        ${['21','25','30','35','40','45','50','55','60','64'].map(a =>
+          '<option value="' + a + '"' + (a === filters.age ? ' selected' : '') + '>' + a + '</option>'
+        ).join('')}
+      </select>
+    </div>
+
+    <div class="info-bar-group">
+      <label for="household">Household</label>
+      <select name="household" id="household" onchange="this.form.submit()">
+        ${[1,2,3,4,5,6,7,8].map(h =>
+          '<option value="' + h + '"' + (h === filters.household ? ' selected' : '') + '>' + (h === 1 ? 'Just me' : h + ' people') + '</option>'
+        ).join('')}
+      </select>
+    </div>
+
+    <div class="info-bar-group info-bar-income">
+      <label for="income">Annual Income</label>
+      <div class="input-with-prefix">
+        <span class="input-prefix">$</span>
+        <input type="text" name="income" id="income" value="${filters.income ? filters.income.toLocaleString() : ''}" placeholder="50,000" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="info-bar-group info-bar-checkbox">
+      <label class="checkbox-label">
+        <input type="checkbox" name="tobacco" id="tobacco" ${filters.tobacco ? 'checked' : ''} onchange="this.form.submit()">
+        Tobacco user
+      </label>
+    </div>
+
+    <div class="info-bar-group info-bar-sort">
+      <label for="sort">Sort by</label>
+      <select name="sort" id="sort" onchange="this.form.submit()">
+        <option value="price_asc"${filters.sort === 'price_asc' ? ' selected' : ''}>Price: Low to High</option>
+        <option value="price_desc"${filters.sort === 'price_desc' ? ' selected' : ''}>Price: High to Low</option>
+        <option value="deductible_asc"${filters.sort === 'deductible_asc' ? ' selected' : ''}>Deductible: Low to High</option>
+        <option value="deductible_desc"${filters.sort === 'deductible_desc' ? ' selected' : ''}>Deductible: High to Low</option>
+        <option value="oop_asc"${filters.sort === 'oop_asc' ? ' selected' : ''}>Out-of-Pocket Max: Low to High</option>
+      </select>
+    </div>
+  </div>
+
+  ${subsidyInfo ? `
+  <div class="subsidy-banner ${subsidyInfo.eligible ? 'eligible' : 'not-eligible'}">
+    ${subsidyInfo.eligible ? `
+      <div class="subsidy-amount">
+        <span class="subsidy-label">Estimated monthly savings</span>
+        <span class="subsidy-value">$${subsidyInfo.subsidy}</span>
+      </div>
+      <div class="subsidy-details">
+        <p>Based on ${subsidyInfo.fplPercent}% of the Federal Poverty Level for your household.</p>
+        <p class="subsidy-disclaimer">This is an estimate. Actual savings depend on the plan you choose and final income verification.</p>
+      </div>
+    ` : `
+      <div class="subsidy-message">
+        <strong>You may not qualify for savings</strong>
+        <p>At ${subsidyInfo.fplPercent}% of the Federal Poverty Level, you may not be eligible for premium tax credits.
+        ${subsidyInfo.fplPercent < 100 ? 'You may qualify for Medicaid instead.' : 'You can still purchase a plan at full price.'}</p>
+      </div>
+    `}
+  </div>
+  ` : ''}
+
+  <div class="plans-layout">
+    <aside class="filters-sidebar">
+      <div class="filter-section">
+        <h3>Filter Plans</h3>
+        <div class="filter-group">
+          <label for="metal">Metal Level</label>
+          <select name="metal" id="metal" onchange="this.form.submit()">
+            <option value="all"${filters.metal === 'all' ? ' selected' : ''}>All Levels</option>
+            ${metalLevels.map(m => '<option value="' + m + '"' + (m === filters.metal ? ' selected' : '') + '>' + m + '</option>').join('')}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="issuer">Insurance Company</label>
+          <select name="issuer" id="issuer" onchange="this.form.submit()">
+            <option value="all"${filters.issuer === 'all' ? ' selected' : ''}>All Companies</option>
+            ${issuers.map(i => '<option value="' + i + '"' + (i === filters.issuer ? ' selected' : '') + '>' + i + '</option>').join('')}
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="type">Plan Type</label>
+          <select name="type" id="type" onchange="this.form.submit()">
+            <option value="all"${filters.type === 'all' ? ' selected' : ''}>All Types</option>
+            ${planTypes.map(t => '<option value="' + t + '"' + (t === filters.type ? ' selected' : '') + '>' + t + '</option>').join('')}
+          </select>
+        </div>
+      </div>
+    </aside>
+
+    <div class="plans-main">
+      <div class="plan-list">
+        ${plans.length === 0 ? '<div class="empty-state"><h3>No plans found</h3><p>Try adjusting your filters.</p></div>' : ''}
+
+        ${plans.map(plan => {
+          const formatMoney = (val) => {
+            if (!val) return 'N/A';
+            if (typeof val === 'string' && val.startsWith('$')) return val;
+            return '$' + Number(val).toLocaleString();
+          };
+          const hasSubsidy = typeof plan.subsidized_premium === 'number';
+          return `
+          <div class="plan-card ${(plan.metal_level || '').toLowerCase()}">
+            <div class="plan-info">
+              <h3><a href="/plan/${plan.plan_id}">${plan.plan_marketing_name || 'Unnamed Plan'}</a></h3>
+              <p class="plan-issuer">${plan.issuer_name || 'Unknown Issuer'}</p>
+
+              <div class="plan-meta">
+                <div class="plan-meta-item">
+                  <span class="plan-meta-label">Metal Level</span>
+                  <span class="plan-meta-value"><span class="metal-pill ${(plan.metal_level || '').toLowerCase().replace(' ', '-') || 'default'}">${plan.metal_level || 'N/A'}</span></span>
+                </div>
+                <div class="plan-meta-item">
+                  <span class="plan-meta-label">Plan Type</span>
+                  <span class="plan-meta-value"><span class="plan-type-pill ${(plan.plan_type || '').toLowerCase() || 'default'}">${plan.plan_type || 'N/A'}</span></span>
+                </div>
+                <div class="plan-meta-item">
+                  <span class="plan-meta-label">Deductible</span>
+                  <span class="plan-meta-value">${formatMoney(plan.medical_deductible_individual)}</span>
+                </div>
+                <div class="plan-meta-item">
+                  <span class="plan-meta-label">Out-of-Pocket Max</span>
+                  <span class="plan-meta-value">${formatMoney(plan.medical_moop_individual)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="plan-pricing">
+              ${hasSubsidy ? `
+                <div class="plan-premium-with-subsidy">
+                  <div class="plan-premium-subsidized">$${plan.subsidized_premium}</div>
+                  <div class="plan-premium-original">$${Math.round(plan.monthly_premium)}/mo before savings</div>
+                </div>
+              ` : `
+                <div class="plan-premium">${plan.monthly_premium ? '$' + Math.round(plan.monthly_premium) : 'N/A'}</div>
+              `}
+              <div class="plan-premium-label">per month</div>
+              <div class="plan-actions">
+                <a href="/plan/${plan.plan_id}" class="btn btn-primary btn-small">View Details</a>
+                <label class="compare-checkbox">
+                  <input type="checkbox" class="compare-check" value="${plan.plan_id}">
+                  Compare
+                </label>
+              </div>
+            </div>
+          </div>
+        `}).join('')}
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="compare-bar" id="compare-bar">
+  <span><strong id="compare-count">0</strong> plans selected for comparison</span>
+  <a href="#" class="btn" id="compare-btn">Compare Plans</a>
+</div>
+`}) %>

@@ -1,0 +1,112 @@
+<%- include('layout', { body: `
+<div class="compare-page">
+  <a href="javascript:history.back()" class="back-link">&larr; Back to results</a>
+
+  <h1>Compare Plans</h1>
+
+  <div class="compare-table-wrapper">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th></th>
+          ${plans.map(p => `
+            <th>
+              <div class="plan-metal metal-${(p.metal_level || '').toLowerCase()}">${p.metal_level || 'N/A'}</div>
+              <strong>${p.plan_marketing_name || 'Unnamed'}</strong>
+              <small>${p.issuer_name || ''}</small>
+            </th>
+          `).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">Plan Type</td>
+          ${plans.map(p => `<td>${p.plan_type || 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">Deductible (Individual)</td>
+          ${plans.map(p => `<td>${p.medical_deductible_individual ? '$' + Number(p.medical_deductible_individual).toLocaleString() : 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">Deductible (Family)</td>
+          ${plans.map(p => `<td>${p.medical_deductible_family ? '$' + Number(p.medical_deductible_family).toLocaleString() : 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">Out-of-Pocket Max (Individual)</td>
+          ${plans.map(p => `<td>${p.medical_moop_individual ? '$' + Number(p.medical_moop_individual).toLocaleString() : 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">Out-of-Pocket Max (Family)</td>
+          ${plans.map(p => `<td>${p.medical_moop_family ? '$' + Number(p.medical_moop_family).toLocaleString() : 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">Drug Deductible</td>
+          ${plans.map(p => `<td>${p.drug_deductible_individual ? '$' + Number(p.drug_deductible_individual).toLocaleString() : 'N/A'}</td>`).join('')}
+        </tr>
+        <tr>
+          <td class="row-label">HSA Eligible</td>
+          ${plans.map(p => `<td>${p.hsa_eligible ? 'Yes' : 'No'}</td>`).join('')}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Monthly Premiums by Age</h2>
+  <div class="compare-table-wrapper">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Age</th>
+          ${plans.map(p => `<th>${p.plan_marketing_name || 'Plan'}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${(() => {
+          const ages = [...new Set(plans.flatMap(p => (ratesMap[p.plan_id] || []).map(r => r.age)))].sort((a, b) => {
+            const numA = parseInt(a) || 0;
+            const numB = parseInt(b) || 0;
+            return numA - numB;
+          });
+          return ages.map(age => `
+            <tr>
+              <td class="row-label">${age}</td>
+              ${plans.map(p => {
+                const rate = (ratesMap[p.plan_id] || []).find(r => r.age === age);
+                return '<td>' + (rate && rate.individual_rate ? '$' + Number(rate.individual_rate).toFixed(2) : 'N/A') + '</td>';
+              }).join('')}
+            </tr>
+          `).join('');
+        })()}
+      </tbody>
+    </table>
+  </div>
+
+  ${allBenefits.length > 0 ? `
+  <h2>Benefits Comparison</h2>
+  <div class="compare-table-wrapper">
+    <table class="compare-table benefits-compare">
+      <thead>
+        <tr>
+          <th>Benefit</th>
+          ${plans.map(p => `<th>${p.plan_marketing_name || 'Plan'}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${allBenefits.slice(0, 30).map(benefitName => `
+          <tr>
+            <td class="row-label">${benefitName}</td>
+            ${plans.map(p => {
+              const benefit = (benefitsMap[p.plan_id] || []).find(b => b.benefit_name === benefitName);
+              if (!benefit) return '<td class="not-covered">Not Listed</td>';
+              const copay = benefit.copay_in_network || '';
+              const coins = benefit.coinsurance_in_network || '';
+              return '<td>' + [copay, coins].filter(Boolean).join(' / ') + '</td>';
+            }).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+  ` : ''}
+</div>
+`}) %>

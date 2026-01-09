@@ -1,0 +1,94 @@
+<%- include('layout', { body: (() => {
+  const formatMoney = (val) => {
+    if (!val) return 'N/A';
+    if (typeof val === 'string') {
+      // Extract numeric part and any suffix (e.g., "per person")
+      const match = val.match(/^\$?([\d,]+)\s*(.*)$/);
+      if (match) {
+        const num = parseInt(match[1].replace(/,/g, ''), 10);
+        const suffix = match[2] ? ' ' + match[2] : '';
+        return '$' + num.toLocaleString() + suffix;
+      }
+      return val;
+    }
+    return '$' + Number(val).toLocaleString();
+  };
+  const formatDrugDed = (drugVal, medicalVal) => {
+    if (drugVal) {
+      return formatMoney(drugVal);
+    }
+    if (medicalVal) return 'Included in Medical';
+    return 'N/A';
+  };
+  return `
+<a href="javascript:history.back()" class="btn btn-secondary btn-small" style="margin-bottom: 20px;">&larr; Back to results</a>
+
+<div class="plan-header">
+  <h1>${plan.plan_marketing_name || 'Unnamed Plan'}</h1>
+  <p class="issuer">${plan.issuer_name || 'Unknown Issuer'}</p>
+  <div class="plan-badges">
+    <span class="metal-pill ${(plan.metal_level || '').toLowerCase().replace(' ', '-') || 'default'}">${plan.metal_level || 'N/A'}</span>
+    <span class="plan-type-pill ${(plan.plan_type || '').toLowerCase() || 'default'}">${plan.plan_type || 'N/A'}</span>
+    ${plan.hsa_eligible ? '<span class="badge badge-type">HSA Eligible</span>' : ''}
+  </div>
+</div>
+
+<div class="plan-sections">
+  <div class="plan-section">
+    <h2>Cost Summary</h2>
+    <div class="cost-grid">
+      <div class="cost-item">
+        <div class="cost-item-label">Deductible (Individual)</div>
+        <div class="cost-item-value">${formatMoney(plan.medical_deductible_individual)}</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-item-label">Deductible (Family)</div>
+        <div class="cost-item-value">${formatMoney(plan.medical_deductible_family)}</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-item-label">Out-of-Pocket Max (Individual)</div>
+        <div class="cost-item-value">${formatMoney(plan.medical_moop_individual)}</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-item-label">Out-of-Pocket Max (Family)</div>
+        <div class="cost-item-value">${formatMoney(plan.medical_moop_family)}</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-item-label">Drug Deductible (Individual)</div>
+        <div class="cost-item-value">${formatDrugDed(plan.drug_deductible_individual, plan.medical_deductible_individual)}</div>
+      </div>
+      <div class="cost-item">
+        <div class="cost-item-label">Drug Deductible (Family)</div>
+        <div class="cost-item-value">${formatDrugDed(plan.drug_deductible_family, plan.medical_deductible_family)}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+${benefits.length > 0 ? `
+<div class="plan-section" style="margin-top: 24px;">
+  <h2>Covered Benefits</h2>
+  <table class="benefits-table">
+    <thead>
+      <tr>
+        <th>Benefit</th>
+        <th>In-Network Copay</th>
+        <th>In-Network Coinsurance</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${benefits.map(b => `
+        <tr>
+          <td>${b.benefit_name}</td>
+          <td>${b.copay_in_network || 'N/A'}</td>
+          <td>${b.coinsurance_in_network || 'N/A'}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</div>
+` : ''}
+
+<p style="margin-top: 24px; color: #888; font-size: 13px;">Plan ID: ${plan.plan_id}</p>
+`})()}) %>
