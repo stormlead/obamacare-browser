@@ -114,18 +114,20 @@ router.get('/plans', async (req, res, next) => {
     }
 
     const metalLevels = await dbQuery(`
-      SELECT DISTINCT metal_level FROM plans
+      SELECT DISTINCT metal_level,
+        CASE metal_level
+          WHEN 'Catastrophic' THEN 1
+          WHEN 'Bronze' THEN 2
+          WHEN 'Expanded Bronze' THEN 3
+          WHEN 'Silver' THEN 4
+          WHEN 'Gold' THEN 5
+          WHEN 'Platinum' THEN 6
+          ELSE 7
+        END as sort_order
+      FROM plans
       WHERE state_code = ? AND metal_level IS NOT NULL AND market_coverage = 'Individual'
         AND metal_level NOT IN ('High', 'Low')
-      ORDER BY CASE metal_level
-        WHEN 'Catastrophic' THEN 1
-        WHEN 'Bronze' THEN 2
-        WHEN 'Expanded Bronze' THEN 3
-        WHEN 'Silver' THEN 4
-        WHEN 'Gold' THEN 5
-        WHEN 'Platinum' THEN 6
-        ELSE 7
-      END
+      ORDER BY sort_order
     `, [state]);
 
     const planTypes = await dbQuery(`
