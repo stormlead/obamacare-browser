@@ -2,5 +2,7 @@ node_modules/
 .DS_Store
 # Keep plans.db but ignore other db files
 test*.db
-data/
+# Ignore large CSV files but keep zipcodes.json
+data/*.csv
+data/*.db
 .env
