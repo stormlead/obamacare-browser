@@ -1,5 +1,6 @@
 node_modules/
 .DS_Store
-*.db
+# Keep plans.db but ignore other db files
+test*.db
 data/
 .env
