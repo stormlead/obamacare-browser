@@ -33,6 +33,41 @@
   </div>
 </div>
 
+${monthlyPremium ? `
+<div class="premium-hero">
+  <div class="premium-main">
+    ${subsidyInfo && subsidyInfo.eligible ? `
+      <div class="premium-with-subsidy">
+        <div class="premium-after">
+          <span class="premium-label">Your estimated monthly cost</span>
+          <span class="premium-value">$${Math.max(0, Math.round(monthlyPremium - subsidyInfo.subsidy))}</span>
+          <span class="premium-note">after tax credits</span>
+        </div>
+        <div class="premium-details">
+          <div class="premium-detail-row">
+            <span>Full premium</span>
+            <span>$${Math.round(monthlyPremium)}/mo</span>
+          </div>
+          <div class="premium-detail-row subsidy-row">
+            <span>Estimated tax credit</span>
+            <span>-$${subsidyInfo.subsidy}/mo</span>
+          </div>
+        </div>
+      </div>
+    ` : `
+      <div class="premium-full">
+        <span class="premium-label">Monthly Premium</span>
+        <span class="premium-value">$${Math.round(monthlyPremium)}</span>
+        <span class="premium-note">for age ${filters.age}${filters.tobacco ? ', tobacco user' : ''}</span>
+      </div>
+    `}
+  </div>
+  <div class="premium-context">
+    <p>Based on: Age ${filters.age}${filters.income ? ', $' + filters.income.toLocaleString() + '/year income' : ''}${filters.household > 1 ? ', ' + filters.household + ' in household' : ''}</p>
+  </div>
+</div>
+` : ''}
+
 <div class="plan-sections">
   <div class="plan-section">
     <h2>Cost Summary</h2>

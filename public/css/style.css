@@ -1358,7 +1358,7 @@ footer a {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  text-align: left;
+  text-align: center;
 }
 
 .household-field {
@@ -1393,6 +1393,73 @@ footer a {
 .field-hint {
   font-size: 12px;
   color: #888;
+}
+
+/* Stepper control for household size */
+.stepper-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: #fff;
+  border: 2px solid #D3E0E8;
+  border-radius: 12px;
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.stepper-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: #f0f4f8;
+  color: #0970C5;
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepper-btn:hover:not(:disabled) {
+  background: #e1eaf3;
+  transform: scale(1.05);
+}
+
+.stepper-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper-value {
+  min-width: 100px;
+  text-align: center;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stepper-value #household-display {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a365d;
+  line-height: 1;
+}
+
+.stepper-value .stepper-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
 }
 
 /* Input with prefix (dollar sign) */
@@ -1564,5 +1631,109 @@ footer a {
 
   .subsidy-amount {
     min-width: auto;
+  }
+}
+
+/* Premium hero section on plan detail page */
+.premium-hero {
+  background: linear-gradient(135deg, #0a1628 0%, #1a365d 50%, #0f172a 100%);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+.premium-main {
+  text-align: center;
+}
+
+.premium-with-subsidy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.premium-after {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.premium-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.premium-label {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.premium-value {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, #a5f3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.premium-note {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.premium-details {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px 24px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.premium-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.premium-detail-row:first-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.premium-detail-row.subsidy-row {
+  color: #86efac;
+  font-weight: 500;
+}
+
+.premium-context {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.premium-context p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 600px) {
+  .premium-hero {
+    padding: 24px 16px;
+  }
+
+  .premium-value {
+    font-size: 42px;
+  }
+
+  .premium-details {
+    padding: 12px 16px;
   }
 }

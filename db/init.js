@@ -1,97 +1,68 @@
-const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'plans.db');
+// Use PostgreSQL if DATABASE_URL is set, otherwise SQLite
+// Railway may use different variable names depending on setup
+const dbUrl = process.env.DATABASE_URL || process.env.DATABASE_PRIVATE_URL || process.env.POSTGRES_URL;
+const usePostgres = !!dbUrl;
 
-function initDatabase() {
-  const db = new Database(dbPath);
+let pool = null;
+let sqliteDbPath = null;
 
-  db.exec(`
-    -- Plans table (from Plan Attributes PUF)
-    CREATE TABLE IF NOT EXISTS plans (
-      plan_id TEXT PRIMARY KEY,
-      standard_component_id TEXT,
-      plan_marketing_name TEXT,
-      hios_issuer_id TEXT,
-      issuer_name TEXT,
-      state_code TEXT,
-      service_area_id TEXT,
-      market_coverage TEXT,
-      metal_level TEXT,
-      plan_type TEXT,
-      is_new_plan INTEGER,
-      plan_effective_date TEXT,
-      plan_expiration_date TEXT,
-      out_of_country_coverage INTEGER,
-      national_network INTEGER,
-      child_only_offering TEXT,
-      rating_area TEXT,
-      medical_deductible_individual REAL,
-      medical_deductible_family REAL,
-      drug_deductible_individual REAL,
-      drug_deductible_family REAL,
-      medical_moop_individual REAL,
-      medical_moop_family REAL,
-      drug_moop_individual REAL,
-      drug_moop_family REAL,
-      hsa_eligible INTEGER
-    );
-
-    -- Service areas mapping (from Service Area PUF)
-    CREATE TABLE IF NOT EXISTS service_areas (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      service_area_id TEXT,
-      state_code TEXT,
-      county_name TEXT,
-      cover_entire_state INTEGER
-    );
-
-    -- Benefits and cost sharing (from Benefits PUF)
-    CREATE TABLE IF NOT EXISTS benefits (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      plan_id TEXT,
-      benefit_name TEXT,
-      is_covered INTEGER,
-      copay_in_network TEXT,
-      copay_out_of_network TEXT,
-      coinsurance_in_network TEXT,
-      coinsurance_out_of_network TEXT,
-      is_ehb INTEGER,
-      quantity_limit TEXT,
-      limit_unit TEXT,
-      limit_quantity REAL,
-      exclusions TEXT,
-      explanation TEXT
-    );
-
-    -- Rates (from Rate PUF)
-    CREATE TABLE IF NOT EXISTS rates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      plan_id TEXT,
-      state_code TEXT,
-      rating_area TEXT,
-      tobacco TEXT,
-      age TEXT,
-      individual_rate REAL,
-      individual_tobacco_rate REAL
-    );
-
-    -- Indexes for common queries
-    CREATE INDEX IF NOT EXISTS idx_plans_state ON plans(state_code);
-    CREATE INDEX IF NOT EXISTS idx_plans_metal ON plans(metal_level);
-    CREATE INDEX IF NOT EXISTS idx_plans_service_area ON plans(service_area_id);
-    CREATE INDEX IF NOT EXISTS idx_service_areas_state_county ON service_areas(state_code, county_name);
-    CREATE INDEX IF NOT EXISTS idx_service_areas_id ON service_areas(service_area_id);
-    CREATE INDEX IF NOT EXISTS idx_benefits_plan ON benefits(plan_id);
-    CREATE INDEX IF NOT EXISTS idx_rates_plan ON rates(plan_id);
-    CREATE INDEX IF NOT EXISTS idx_rates_area ON rates(state_code, rating_area);
-  `);
-
-  return db;
+if (usePostgres) {
+  const { Pool } = require('pg');
+  pool = new Pool({
+    connectionString: dbUrl,
+    ssl: { rejectUnauthorized: false }
+  });
+  console.log('Using PostgreSQL database');
+} else {
+  sqliteDbPath = path.join(__dirname, '..', 'plans.db');
+  console.log('Using SQLite database:', sqliteDbPath);
 }
 
+// Unified query interface
+async function query(sql, params = []) {
+  if (usePostgres) {
+    // Convert ? placeholders to $1, $2, etc for PostgreSQL
+    let paramIndex = 0;
+    const pgSql = sql.replace(/\?/g, () => `$${++paramIndex}`);
+    const result = await pool.query(pgSql, params);
+    return result.rows;
+  } else {
+    const Database = require('better-sqlite3');
+    const db = new Database(sqliteDbPath);
+    try {
+      const stmt = db.prepare(sql);
+      if (sql.trim().toUpperCase().startsWith('SELECT')) {
+        return stmt.all(...params);
+      } else {
+        return stmt.run(...params);
+      }
+    } finally {
+      db.close();
+    }
+  }
+}
+
+// For PostgreSQL-specific queries (used in routes that were converted)
+function getPool() {
+  if (!usePostgres) {
+    throw new Error('PostgreSQL pool not available - using SQLite');
+  }
+  return pool;
+}
+
+// For SQLite-specific access (legacy)
 function getDatabase() {
-  return new Database(dbPath);
+  if (usePostgres) {
+    throw new Error('SQLite not available - using PostgreSQL');
+  }
+  const Database = require('better-sqlite3');
+  return new Database(sqliteDbPath);
 }
 
-module.exports = { initDatabase, getDatabase, dbPath };
+function isPostgres() {
+  return usePostgres;
+}
+
+module.exports = { query, getPool, getDatabase, isPostgres };

@@ -116,10 +116,16 @@
             return '$' + Number(val).toLocaleString();
           };
           const hasSubsidy = typeof plan.subsidized_premium === 'number';
+          const detailParams = new URLSearchParams();
+          detailParams.set('age', filters.age);
+          if (filters.income) detailParams.set('income', filters.income);
+          if (filters.household > 1) detailParams.set('household', filters.household);
+          if (filters.tobacco) detailParams.set('tobacco', 'on');
+          const detailUrl = '/plan/' + plan.plan_id + '?' + detailParams.toString();
           return `
           <div class="plan-card ${(plan.metal_level || '').toLowerCase()}">
             <div class="plan-info">
-              <h3><a href="/plan/${plan.plan_id}">${plan.plan_marketing_name || 'Unnamed Plan'}</a></h3>
+              <h3><a href="${detailUrl}">${plan.plan_marketing_name || 'Unnamed Plan'}</a></h3>
               <p class="plan-issuer">${plan.issuer_name || 'Unknown Issuer'}</p>
 
               <div class="plan-meta">
@@ -153,7 +159,7 @@
               `}
               <div class="plan-premium-label">per month</div>
               <div class="plan-actions">
-                <a href="/plan/${plan.plan_id}" class="btn btn-primary btn-small">View Details</a>
+                <a href="${detailUrl}" class="btn btn-primary btn-small">View Details</a>
                 <label class="compare-checkbox">
                   <input type="checkbox" class="compare-check" value="${plan.plan_id}">
                   Compare

@@ -36,17 +36,16 @@
       <label>Tell us about your household</label>
       <div class="household-inputs">
         <div class="household-field">
-          <label for="household-size" class="field-label">How many people in your household?</label>
-          <select name="household" id="household-size">
-            <option value="1" selected>Just me</option>
-            <option value="2">2 people</option>
-            <option value="3">3 people</option>
-            <option value="4">4 people</option>
-            <option value="5">5 people</option>
-            <option value="6">6 people</option>
-            <option value="7">7 people</option>
-            <option value="8">8+ people</option>
-          </select>
+          <label class="field-label">How many people in your household?</label>
+          <div class="stepper-control">
+            <button type="button" class="stepper-btn stepper-minus" id="household-minus">−</button>
+            <div class="stepper-value">
+              <span id="household-display">1</span>
+              <span class="stepper-label" id="household-label">person</span>
+            </div>
+            <button type="button" class="stepper-btn stepper-plus" id="household-plus">+</button>
+          </div>
+          <input type="hidden" name="household" id="household-size" value="1">
         </div>
         <div class="household-field">
           <label for="income" class="field-label">Estimated yearly household income</label>
