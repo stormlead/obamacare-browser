@@ -17,7 +17,10 @@ app.use('/api', apiRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('error', { message: 'Something went wrong!' });
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Something went wrong!'
+    : err.message || 'Something went wrong!';
+  res.status(500).render('error', { message });
 });
 
 app.listen(PORT, () => {
