@@ -401,7 +401,7 @@ router.get('/compare', async (req, res, next) => {
     for (const plan of plans) {
       const baseId = plan.standard_component_id;
       benefitsMap[plan.plan_id] = await dbQuery(
-        'SELECT * FROM benefits WHERE plan_id = ? AND is_covered = 1 ORDER BY benefit_name',
+        "SELECT * FROM benefits WHERE plan_id = ? AND is_covered = '1' ORDER BY benefit_name",
         [baseId]
       );
 
