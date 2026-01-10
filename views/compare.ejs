@@ -9,11 +9,12 @@
       const formatMoney = (val) => {
         if (!val) return 'N/A';
         if (typeof val === 'string') {
-          const match = val.match(/^\\$?([\\d,]+)\\s*(.*)$/);
-          if (match) {
-            const num = parseInt(match[1].replace(/,/g, ''), 10);
-            const suffix = match[2] ? ' ' + match[2] : '';
-            return '$' + num.toLocaleString() + suffix;
+          const cleaned = val.replace(/[$,]/g, '').trim();
+          const parts = cleaned.split(/\\s+/);
+          const num = parseFloat(parts[0]);
+          if (!isNaN(num)) {
+            const suffix = parts.slice(1).join(' ');
+            return '$' + Math.round(num).toLocaleString() + (suffix ? ' ' + suffix : '');
           }
           return val;
         }
