@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const plansRoutes = require('./routes/plans');
 const apiRoutes = require('./routes/api');
+const pdfRoutes = require('./routes/pdf');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/', plansRoutes);
 app.use('/api', apiRoutes);
+app.use('/pdf', pdfRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

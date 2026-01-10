@@ -21,7 +21,10 @@
     return 'N/A';
   };
   return `
-<a href="javascript:history.back()" class="btn btn-secondary btn-small" style="margin-bottom: 20px;">&larr; Back to results</a>
+<div class="plan-actions-bar">
+  <a href="javascript:history.back()" class="btn btn-secondary btn-small">&larr; Back to results</a>
+  <a href="/pdf/plan/${plan.plan_id}?age=${filters.age}${filters.income ? '&income=' + filters.income : ''}${filters.household > 1 ? '&household=' + filters.household : ''}${filters.tobacco ? '&tobacco=on' : ''}" class="btn btn-secondary btn-small" target="_blank">Export PDF</a>
+</div>
 
 <div class="plan-header">
   <h1>${plan.plan_marketing_name || 'Unnamed Plan'}</h1>
