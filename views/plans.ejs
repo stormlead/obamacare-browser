@@ -151,11 +151,11 @@
             <div class="plan-pricing">
               ${hasSubsidy ? `
                 <div class="plan-premium-with-subsidy">
-                  <div class="plan-premium-subsidized">$${plan.subsidized_premium}</div>
-                  <div class="plan-premium-original">$${Math.round(plan.monthly_premium)}/mo before savings</div>
+                  <div class="plan-premium-subsidized">$${plan.subsidized_premium.toLocaleString()}</div>
+                  <div class="plan-premium-original">$${Math.round(plan.monthly_premium).toLocaleString()}/mo before savings</div>
                 </div>
               ` : `
-                <div class="plan-premium">${plan.monthly_premium ? '$' + Math.round(plan.monthly_premium) : 'N/A'}</div>
+                <div class="plan-premium">${plan.monthly_premium ? '$' + Math.round(plan.monthly_premium).toLocaleString() : 'N/A'}</div>
               `}
               <div class="plan-premium-label">per month</div>
               <div class="plan-actions">

@@ -40,24 +40,24 @@ ${monthlyPremium ? `
       <div class="premium-with-subsidy">
         <div class="premium-after">
           <span class="premium-label">Your estimated monthly cost</span>
-          <span class="premium-value">$${Math.max(0, Math.round(monthlyPremium - subsidyInfo.subsidy))}</span>
+          <span class="premium-value">$${Math.max(0, Math.round(monthlyPremium - subsidyInfo.subsidy)).toLocaleString()}</span>
           <span class="premium-note">after tax credits</span>
         </div>
         <div class="premium-details">
           <div class="premium-detail-row">
             <span>Full premium</span>
-            <span>$${Math.round(monthlyPremium)}/mo</span>
+            <span>$${Math.round(monthlyPremium).toLocaleString()}/mo</span>
           </div>
           <div class="premium-detail-row subsidy-row">
             <span>Estimated tax credit</span>
-            <span>-$${subsidyInfo.subsidy}/mo</span>
+            <span>-$${subsidyInfo.subsidy.toLocaleString()}/mo</span>
           </div>
         </div>
       </div>
     ` : `
       <div class="premium-full">
         <span class="premium-label">Monthly Premium</span>
-        <span class="premium-value">$${Math.round(monthlyPremium)}</span>
+        <span class="premium-value">$${Math.round(monthlyPremium).toLocaleString()}</span>
         <span class="premium-note">for age ${filters.age}${filters.tobacco ? ', tobacco user' : ''}</span>
       </div>
     `}
