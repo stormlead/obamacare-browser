@@ -10,11 +10,9 @@
         if (!val) return 'N/A';
         if (typeof val === 'string') {
           const cleaned = val.replace(/[$,]/g, '').trim();
-          const parts = cleaned.split(/\\s+/);
-          const num = parseFloat(parts[0]);
+          const num = parseFloat(cleaned);
           if (!isNaN(num)) {
-            const suffix = parts.slice(1).join(' ');
-            return '$' + Math.round(num).toLocaleString() + (suffix ? ' ' + suffix : '');
+            return '$' + Math.round(num).toLocaleString();
           }
           return val;
         }
